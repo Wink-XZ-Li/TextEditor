@@ -8,8 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		38C539782535378200D2DC10 /* LineNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38C539762535378200D2DC10 /* LineNumberView.swift */; };
-		38EBB76D2535A8FE0003214F /* TENavigationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38EBB76B2535A8FE0003214F /* TENavigationViewController.swift */; };
 		38EBB76E2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38EBB76C2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift */; };
+		4A7FA27E2535BEDF00A8701F /* DefaultTextEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7FA2782535BEDF00A8701F /* DefaultTextEncoding.swift */; };
+		4A7FA27F2535BEDF00A8701F /* ShowLineNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7FA2792535BEDF00A8701F /* ShowLineNumber.swift */; };
+		4A7FA2802535BEDF00A8701F /* PreferencesWindowController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4A7FA27A2535BEDF00A8701F /* PreferencesWindowController.storyboard */; };
+		4A7FA2812535BEDF00A8701F /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7FA27B2535BEDF00A8701F /* PreferencesViewController.swift */; };
+		4A7FA2832535BEDF00A8701F /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7FA27D2535BEDF00A8701F /* PreferencesWindowController.swift */; };
 		CB478B382521CD1A00CAAE2C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB478B372521CD1A00CAAE2C /* AppDelegate.swift */; };
 		CB478B3A2521CD1A00CAAE2C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB478B392521CD1A00CAAE2C /* ViewController.swift */; };
 		CB478B3C2521CD1B00CAAE2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB478B3B2521CD1B00CAAE2C /* Assets.xcassets */; };
@@ -22,13 +26,18 @@
 		CB4B1473252D70190037A41F /* WindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4B1472252D70190037A41F /* WindowViewController.swift */; };
 		CB4B1477252D7CB60037A41F /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4B1476252D7CB60037A41F /* Document.swift */; };
 		CB4B1479252D9D2D0037A41F /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4B1478252D9D2D0037A41F /* SplitViewController.swift */; };
+		CB9AC2122536D59600659B35 /* DefaultSettings+Encodings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9AC2112536D59600659B35 /* DefaultSettings+Encodings.swift */; };
 		CBD2DB1925246FAC005E45A5 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD2DB1825246FAC005E45A5 /* TextView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		38C539762535378200D2DC10 /* LineNumberView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineNumberView.swift; sourceTree = "<group>"; };
-		38EBB76B2535A8FE0003214F /* TENavigationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TENavigationViewController.swift; sourceTree = "<group>"; };
 		38EBB76C2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TENavigationViewController+NSMenuDelegate.swift"; sourceTree = "<group>"; };
+		4A7FA2782535BEDF00A8701F /* DefaultTextEncoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultTextEncoding.swift; sourceTree = "<group>"; };
+		4A7FA2792535BEDF00A8701F /* ShowLineNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowLineNumber.swift; sourceTree = "<group>"; };
+		4A7FA27A2535BEDF00A8701F /* PreferencesWindowController.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = PreferencesWindowController.storyboard; sourceTree = "<group>"; };
+		4A7FA27B2535BEDF00A8701F /* PreferencesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
+		4A7FA27D2535BEDF00A8701F /* PreferencesWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesWindowController.swift; sourceTree = "<group>"; };
 		CB478B342521CD1A00CAAE2C /* TextEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TextEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB478B372521CD1A00CAAE2C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB478B392521CD1A00CAAE2C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -44,6 +53,7 @@
 		CB4B1472252D70190037A41F /* WindowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowViewController.swift; sourceTree = "<group>"; };
 		CB4B1476252D7CB60037A41F /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		CB4B1478252D9D2D0037A41F /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
+		CB9AC2112536D59600659B35 /* DefaultSettings+Encodings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultSettings+Encodings.swift"; sourceTree = "<group>"; };
 		CBD2DB1825246FAC005E45A5 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -66,6 +76,20 @@
 			path = LineNumberView;
 			sourceTree = "<group>";
 		};
+		4A7FA2772535BEDF00A8701F /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				4A7FA27B2535BEDF00A8701F /* PreferencesViewController.swift */,
+				4A7FA2782535BEDF00A8701F /* DefaultTextEncoding.swift */,
+				CB9AC2112536D59600659B35 /* DefaultSettings+Encodings.swift */,
+				4A7FA27D2535BEDF00A8701F /* PreferencesWindowController.swift */,
+				4A7FA2792535BEDF00A8701F /* ShowLineNumber.swift */,
+				4A7FA27A2535BEDF00A8701F /* PreferencesWindowController.storyboard */,
+			);
+			name = Preferences;
+			path = TextEditor/Preferences;
+			sourceTree = SOURCE_ROOT;
+		};
 		CB478B2B2521CD1A00CAAE2C = {
 			isa = PBXGroup;
 			children = (
@@ -85,8 +109,6 @@
 		CB478B362521CD1A00CAAE2C /* TextEditor */ = {
 			isa = PBXGroup;
 			children = (
-				CB478B532521D9FB00CAAE2C /* TextEditView */,
-				CB478B472521CD2000CAAE2C /* FileNavigationView */,
 				CB478B372521CD1A00CAAE2C /* AppDelegate.swift */,
 				CB478B392521CD1A00CAAE2C /* ViewController.swift */,
 				CB478B3B2521CD1B00CAAE2C /* Assets.xcassets */,
@@ -96,6 +118,9 @@
 				CB4B1478252D9D2D0037A41F /* SplitViewController.swift */,
 				CB478B402521CD1B00CAAE2C /* Info.plist */,
 				CB478B412521CD1B00CAAE2C /* TextEditor.entitlements */,
+				4A7FA2772535BEDF00A8701F /* Preferences */,
+				CB478B532521D9FB00CAAE2C /* TextEditView */,
+				CB478B472521CD2000CAAE2C /* FileNavigationView */,
 			);
 			path = TextEditor;
 			sourceTree = "<group>";
@@ -103,9 +128,8 @@
 		CB478B472521CD2000CAAE2C /* FileNavigationView */ = {
 			isa = PBXGroup;
 			children = (
-				38EBB76B2535A8FE0003214F /* TENavigationViewController.swift */,
-				38EBB76C2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift */,
 				CB478B4B2521CD9500CAAE2C /* FileNavigationView.storyboard */,
+				38EBB76C2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift */,
 				CB478B562521DB6A00CAAE2C /* FileNavigationViewController.swift */,
 				CB478B4D2521D20900CAAE2C /* TreeNodeModel.swift */,
 			);
@@ -183,6 +207,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB478B552521DA1A00CAAE2C /* TextEditView.storyboard in Resources */,
+				4A7FA2802535BEDF00A8701F /* PreferencesWindowController.storyboard in Resources */,
 				CB478B3C2521CD1B00CAAE2C /* Assets.xcassets in Resources */,
 				CB478B3F2521CD1B00CAAE2C /* Main.storyboard in Resources */,
 				CB478B4C2521CD9500CAAE2C /* FileNavigationView.storyboard in Resources */,
@@ -217,15 +242,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				38C539782535378200D2DC10 /* LineNumberView.swift in Sources */,
+				4A7FA27F2535BEDF00A8701F /* ShowLineNumber.swift in Sources */,
 				CB4B1477252D7CB60037A41F /* Document.swift in Sources */,
+				4A7FA27E2535BEDF00A8701F /* DefaultTextEncoding.swift in Sources */,
 				38EBB76E2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift in Sources */,
+				CB9AC2122536D59600659B35 /* DefaultSettings+Encodings.swift in Sources */,
+				4A7FA2812535BEDF00A8701F /* PreferencesViewController.swift in Sources */,
 				CB4B1473252D70190037A41F /* WindowViewController.swift in Sources */,
 				CB478B572521DB6A00CAAE2C /* FileNavigationViewController.swift in Sources */,
 				CB478B592521DB9700CAAE2C /* TextEditViewController.swift in Sources */,
 				CB478B4E2521D20900CAAE2C /* TreeNodeModel.swift in Sources */,
-				38EBB76D2535A8FE0003214F /* TENavigationViewController.swift in Sources */,
 				CB4B1479252D9D2D0037A41F /* SplitViewController.swift in Sources */,
 				CBD2DB1925246FAC005E45A5 /* TextView.swift in Sources */,
+				4A7FA2832535BEDF00A8701F /* PreferencesWindowController.swift in Sources */,
 				CB478B3A2521CD1A00CAAE2C /* ViewController.swift in Sources */,
 				CB478B382521CD1A00CAAE2C /* AppDelegate.swift in Sources */,
 			);

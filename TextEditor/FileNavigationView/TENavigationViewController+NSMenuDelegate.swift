@@ -8,11 +8,11 @@
 
 import Cocoa
 
-extension TENavigationViewController: NSMenuDelegate, NSTextFieldDelegate, NSControlTextEditingDelegate {
+extension FileNavigationViewController: NSMenuDelegate, NSTextFieldDelegate, NSControlTextEditingDelegate {
     // MARK: NSMenuDelegate
     func menuWillOpen(_ menu: NSMenu) {
-        print(self.filesListOutlineView.clickedRow)
-        if self.filesListOutlineView.clickedRow < 0 {
+        print(self.treeView.clickedRow)
+        if self.treeView.clickedRow < 0 {
             menu.item(withTitle: "Open in New Window")?.isEnabled = false
             menu.item(withTitle: "Rename")?.isEnabled = false
             menu.item(withTitle: "Delete")?.isEnabled = false
@@ -63,79 +63,282 @@ extension TENavigationViewController: NSMenuDelegate, NSTextFieldDelegate, NSCon
         showItemInFinder.isEnabled = true
         expandMenuItem.isEnabled = true
         collapseMenuItem.isEnabled = true
-        self.filesListOutlineView.menu = self.outlineViewMenu
+        self.treeView.menu = self.outlineViewMenu
     }
     @objc func openInNewWindow(sender: NSMenuItem) {
         NSLog("openInNewWindow")
-
-        if self.filesListOutlineView.clickedRow < 0 {
+        if self.treeView.clickedRow < 0 {
             return
         }
-        if let selectedTreeNode = self.filesListOutlineView.item(atRow: self.filesListOutlineView.clickedRow) as? TreeNode {
-            let url = selectedTreeNode.nodePath!
-            NSLog("\(url)")
+        guard let clickedTreeNode = self.treeView.item(atRow: self.treeView.clickedRow) as? TreeNode else {
+            return
         }
-        let storyboard1 = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-        let windowController1 = storyboard1.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as? NSWindowController ?? NSWindowController.init()
-        self.view.window?.windowController?.document?.addWindowController(windowController1)
-        self.view.window?.windowController?.document?.makeWindowControllers()
+        if clickedTreeNode.isFolder {
+            let newUntitledDocument = try? NSDocumentController.shared.openUntitledDocumentAndDisplay(true)
+            guard newUntitledDocument != nil else {
+                NSLog("makeUntitledDocument failed!")
+                return
+            }
+            NSDocumentController.shared.addDocument(newUntitledDocument!)
+            NSLog("~~~~SWC~~~~~\(NSDocumentController.shared.documents.count)")
+            var userInfo = [String: Any]()
+            userInfo["openURL"] = clickedTreeNode.nodeURL!
+            let time = DispatchTimeInterval.milliseconds(3)
+            DispatchQueue.main.asyncAfter(deadline: .now() + time) {
+                NotificationCenter.default.post(
+                    name: Notification.Name(FileNavigationViewController.NotificationNames.openURL),
+                    object: NSDocumentController.shared.documents.last!.windowControllers.last?.window,
+                    userInfo: userInfo)
+            }
+        } else {
+            NSDocumentController.shared.openDocument(withContentsOf: clickedTreeNode.nodeURL!, display: true) {newDoc, _, _ in
+                if newDoc == nil {
+                    NSLog("Document could not be opened!")
+                    // 1. Document has been opened
+                    // 2. Document is not the sported file type
+                }
+                NSLog("OpenInNewWindow sucess!")
+                print("OpenedDocumentsCount:", NSDocumentController.shared.documents.count)
+            }
+        }
+    }
+    func repositionItemInThisDatalogTree(for url: URL) {
+        var nodeSet = self.currentNode?.subNodes
+        var indexArray = [Int]()
+        //print(url.pathComponents.count)
+
+        let rootPathDepth =  (currentNode?.nodeURL?.pathComponents.count)!
+        var nodeNameArray = [String]()
+        for iii in (rootPathDepth)...(url.pathComponents.count-1) {
+            nodeNameArray.append(url.pathComponents[iii])
+        }
+        //print(nodeNameArray)
+
+        for jjj in 0..<nodeNameArray.count {
+            for iii in 0..<nodeSet!.count where nodeNameArray[jjj] == nodeSet![iii].nodeURL!.lastPathComponent {
+                //print("AtRow:", iii, (nodeSet![iii].nodeURL?.path)!, url.path)
+                indexArray.append(iii)
+                nodeSet = nodeSet![iii].subNodes
+                break
+            }
+        }
+        if indexArray.isEmpty {
+            NSLog("No such element")
+            return
+        }
+        //print(indexArray)
+
+        let outline = self.treeView
+        outline!.collapseItem(nil, collapseChildren: true)
+        var rowIndex = indexArray[0]
+        var itemForItration = outline!.item(atRow: rowIndex)
+        outline!.expandItem(itemForItration)
+        indexArray.remove(at: 0)
+        for iii in indexArray {
+            rowIndex += iii + 1
+            itemForItration = outline!.child(iii, ofItem: itemForItration)
+            outline!.expandItem(itemForItration)
+        }
+        let indexes = IndexSet.init(arrayLiteral: rowIndex)
+        outline?.selectRowIndexes(indexes, byExtendingSelection: false)
+        let time = DispatchTimeInterval.milliseconds(100)
+        DispatchQueue.main.asyncAfter(deadline: .now() + time) {
+            outline?.scroll(NSPoint(x: 0, y: (outline?.rect(ofRow: rowIndex).midY)!-self.view.visibleRect.height*0.5))
+            if let node = outline?.item(atRow: rowIndex) as? TreeNode {
+                print("Scroll to row:", rowIndex, node.nodeName)
+            }
+        }
     }
     @objc func newFolder(sender: NSMenuItem) {
-        NSLog("newFolder")
+        NSLog("newFile")
+        let clickedRowIndex = self.treeView.clickedRow
+        if clickedRowIndex < 0 {
+            return
+        }
+        let clickedItem = self.treeView.item(atRow: clickedRowIndex)
+        guard let clickedTreeNode = clickedItem as? TreeNode else {
+            NSLog("Error in: Item converting")
+            return
+        }
+        if clickedTreeNode.isFolder {
+            NSLog("clickedTreeNode.isFolder")
+            var newFileName = "未命名文件夹"
+            var newFileURL = clickedTreeNode.nodeURL!.appendingPathComponent(newFileName)
+            var directoryExists = ObjCBool.init(false)
+            for iii in 2...INT64_MAX {
+                if FileManager.default.fileExists(atPath: newFileURL.path, isDirectory: &directoryExists) {
+                    newFileName = "未命名文件夹 " + "\(iii)"
+                    newFileURL = clickedTreeNode.nodeURL!.appendingPathComponent(newFileName)
+                } else {
+                    break
+                }
+            }
+            do {
+                try FileManager.default.createDirectory(at: newFileURL, withIntermediateDirectories: false, attributes: nil)
+            } catch {
+                NSLog("mkdir failed")
+                return
+            }
+            clickedTreeNode.subNodes.insert(TreeNode.init(newFileURL), at: 0)
+            self.treeView.reloadData()
+            self.treeView.expandItem(clickedItem)
+        } else {
+            NSLog("clickedTreeNode.isNotFolder")
+            var newFileName = "未命名文件夹"
+            var newFileURL = clickedTreeNode.nodeURL!.deletingLastPathComponent().appendingPathComponent(newFileName)
+            var directoryExists = ObjCBool.init(false)
+            for iii in 2...INT64_MAX {
+                if FileManager.default.fileExists(atPath: newFileURL.path, isDirectory: &directoryExists) {
+                    newFileName = "未命名文件夹 " + "\(iii)"
+                    newFileURL = clickedTreeNode.nodeURL!.deletingLastPathComponent().appendingPathComponent(newFileName)
+                } else {
+                    break
+                }
+            }
+            do {
+                try FileManager.default.createDirectory(at: newFileURL, withIntermediateDirectories: false, attributes: nil)
+            } catch {
+                NSLog("mkdir failed")
+                return
+            }
+            let childIndex = self.treeView.childIndex(forItem: clickedItem!)
+            let parent = self.treeView.parent(forItem: clickedItem)
+            if let parent = parent as? TreeNode {
+                parent.subNodes.insert(TreeNode.init(newFileURL), at: childIndex + 1)
+            } else {
+                currentNode?.subNodes.insert(TreeNode.init(newFileURL), at: childIndex + 1)
+            }
+            self.treeView.reloadData()
+        }
     }
     @objc func newFile(sender: NSMenuItem) {
         NSLog("newFile")
+        let clickedRowIndex = self.treeView.clickedRow
+        if clickedRowIndex < 0 {
+            return
+        }
+        let clickedItem = self.treeView.item(atRow: clickedRowIndex)
+        guard let clickedTreeNode = clickedItem as? TreeNode else {
+            NSLog("Error in: Item converting")
+            return
+        }
+        if clickedTreeNode.isFolder {
+            NSLog("clickedTreeNode.isFolder")
+            var newFileName = "未命名文件"
+            var newFileURL = clickedTreeNode.nodeURL!.appendingPathComponent(newFileName)
+            var directoryExists = ObjCBool.init(false)
+            for iii in 2...INT64_MAX {
+                if FileManager.default.fileExists(atPath: newFileURL.path, isDirectory: &directoryExists) {
+                    newFileName = "未命名文件 " + "\(iii)"
+                    newFileURL = clickedTreeNode.nodeURL!.appendingPathComponent(newFileName)
+                } else {
+                    break
+                }
+            }
+            if FileManager.default.createFile(atPath: newFileURL.path, contents: nil, attributes: nil) {
+//                self.itemShouldBeUsed = TreeNode.init(newFileURL) as Any
+                let indexSet = IndexSet(arrayLiteral: 0)
+                self.treeView.insertItems(at: indexSet, inParent: clickedItem, withAnimation: [])
+//                let childIndex = self.treeView.childIndex(forItem: clickedItem!)
+//                let indexSet = IndexSet(arrayLiteral: childIndex)
+//                let parent = self.treeView.parent(forItem: clickedItem)
+//                self.treeView.insertItems(at: indexSet, inParent: parent, withAnimation: [])
+                clickedTreeNode.subNodes.insert(TreeNode.init(newFileURL), at: 0)
+                self.treeView.reloadData()
+                self.treeView.expandItem(clickedItem)
+                // Reset the varible "itemShouldBeUsed"
+//                self.itemShouldBeUsed = nil
+            }
+        } else {
+            NSLog("clickedTreeNode.isNotFolder")
+            var newFileName = "未命名文件"
+            var newFileURL = clickedTreeNode.nodeURL!.deletingLastPathComponent().appendingPathComponent(newFileName)
+            var directoryExists = ObjCBool.init(false)
+            for iii in 2...INT64_MAX {
+                if FileManager.default.fileExists(atPath: newFileURL.path, isDirectory: &directoryExists) {
+                    newFileName = "未命名文件 " + "\(iii)"
+                    newFileURL = clickedTreeNode.nodeURL!.deletingLastPathComponent().appendingPathComponent(newFileName)
+                } else {
+                    break
+                }
+            }
+            if FileManager.default.createFile(atPath: newFileURL.path, contents: nil, attributes: nil) {
+//                self.itemShouldBeUsed = TreeNode.init(newFileURL) as Any
+                let childIndex = self.treeView.childIndex(forItem: clickedItem!)
+//                let indexSet = IndexSet(arrayLiteral: childIndex)
+                let parent = self.treeView.parent(forItem: clickedItem)
+//                self.treeView.insertItems(at: indexSet, inParent: parent, withAnimation: [])
+                if let parent = parent as? TreeNode {
+                    parent.subNodes.insert(TreeNode.init(newFileURL), at: childIndex + 1)
+                } else {
+                    currentNode?.subNodes.insert(TreeNode.init(newFileURL), at: childIndex + 1)
+                }
+                self.treeView.reloadData()
+                // Reset the varible "itemShouldBeUsed"
+//                self.itemShouldBeUsed = nil
+            }
+        }
     }
 
-    // MARK: - NSControlTextEditingDelegate
-//    @objc func controlTextDidBeginEditing(_ obj: Notification) {
-//        print("\n+++++++++++++++++++++++", obj.name)
-//        guard let textField = obj.object as? NSTextField else {
-//            return
-//        }
-//        NSLog(textField.stringValue)
-//        if let viewController = textField.delegate as? TENavigationViewController {
-//            NSLog("\(viewController.filesListOutlineView.selectedRow)")
-//            NSLog("\(self.theLastClickedRow)")
-//        }
-//    }
-//    @objc func controlTextDidChange(_ obj: Notification) {
-//        print("\n+++++++++++++++++++++++", obj.name)
-//        guard let textField = obj.object as? NSTextField else {
-//            return
-//        }
-//        NSLog(textField.stringValue)
-//        if let viewController = textField.delegate as? TENavigationViewController {
-//            NSLog("\(viewController.filesListOutlineView.selectedRow)")
-//            NSLog("\(self.theLastClickedRow)")
-//        }
-//    }
+// MARK: - NSControlTextEditingDelegate
+    // MARK: Rename Item
+    func renameItem(_ item: Any, _ newName: String) {
+        guard let clickedTreeNode = item as? TreeNode else {
+            NSLog("Error in: Item converting")
+            return
+        }
+        print("New Name: ", newName)
+        let newURL = clickedTreeNode.nodeURL?.deletingLastPathComponent().appendingPathComponent(newName)
+        NSLog("Rename");print("mv", clickedTreeNode.nodeURL!.path, newURL!.path)
+        // Update local data.
+        do {
+            try FileManager.default.moveItem(at: clickedTreeNode.nodeURL!, to: newURL!)
+        } catch {
+            NSLog("rename Failed!")
+            return
+        }
+//        self.itemShouldBeUsed = TreeNode.init(newURL!) as Any
+        let childIndex = self.treeView.childIndex(forItem: item)
+//        var indexSet = IndexSet(arrayLiteral: childIndex)
+        let parent = self.treeView.parent(forItem: item)
+//        self.treeView.insertItems(at: indexSet, inParent: parent, withAnimation: [])
+        // Reset the varible "itemShouldBeUsed"
+//        self.itemShouldBeUsed = nil
+//        indexSet = IndexSet(arrayLiteral: childIndex + 1)
+//        self.treeView.removeItems(at: indexSet, inParent: parent, withAnimation: [])
+        if let parent = parent as? TreeNode {
+            parent.subNodes[childIndex] = TreeNode.init(newURL!)
+        } else {
+            currentNode?.subNodes[childIndex] = TreeNode.init(newURL!)
+        }
+        print(parent as Any)
+        self.treeView.reloadData()
+        NSLog("rename success!")
+    }
     @objc func controlTextDidEndEditing(_ obj: Notification) {
-        print("\n+++++++++++++++++++++++", obj.name)
+        NSLog(obj.name.rawValue)
         guard let textField = obj.object as? NSTextField else {
             return
         }
         textField.isEditable = false
-        NSLog(textField.stringValue)
-        if let treeNode = self.filesListOutlineView.item(atRow: self.theLastClickedRow) as? TreeNode {
-            print(treeNode.nodePath)
-        }
-        print("At", self.theLastClickedRow, "row")
+        let clickedRowIndex = self.theLastClickedRow
+        let clickedItem = self.treeView.item(atRow: clickedRowIndex)
+        renameItem(clickedItem!, textField.stringValue)
+        textField.stringValue = (clickedItem as? TreeNode)!.nodeName
+        print("theLastClickedRow: ", self.theLastClickedRow)
         self.theLastClickedRow = -1
     }
     @objc func rename(sender: NSMenuItem) {
-        let clickedRowIndex = self.filesListOutlineView.clickedRow
+        let clickedRowIndex = self.treeView.clickedRow
         if clickedRowIndex < 0 {
             return
         }
-        let view = self.filesListOutlineView.view(atColumn: 0, row: clickedRowIndex, makeIfNecessary: true)
+//        let clickedItem = self.treeView.item(atRow: clickedRowIndex)
+        let view = self.treeView.view(atColumn: 0, row: clickedRowIndex, makeIfNecessary: true)
         if let cellView = view as? NSTableCellView {
             cellView.textField?.isEditable = true
             cellView.textField?.selectText(nil)
             cellView.textField?.delegate = self
-            if let treeNode = self.filesListOutlineView.item(atRow: self.theLastClickedRow) as? TreeNode {
-                cellView.textField?.bind(NSBindingName.init("content"), to: self, withKeyPath: ".filesListOutlineView.item(atRow: clickedRowIndex) as? TreeNode", options: nil)
-            }
             self.theLastClickedRow = clickedRowIndex
         }
     }
@@ -148,7 +351,7 @@ extension TENavigationViewController: NSMenuDelegate, NSTextFieldDelegate, NSCon
             alert.messageText = NSLocalizedString("Are you sure you want to remove these items?", comment: "")
         } else {
             // Remove the single item.
-            if itemsToRemove[0].nodePath != nil {
+            if itemsToRemove[0].nodeURL != nil {
                 messageStr = NSLocalizedString("Are you sure you want to remove the reference to \"%@\"?", comment: "")
             } else {
                 messageStr = NSLocalizedString("Are you sure you want to remove \"%@\"?", comment: "")
@@ -161,19 +364,18 @@ extension TENavigationViewController: NSMenuDelegate, NSTextFieldDelegate, NSCon
         return alert
     }
     @objc func delete(sender: NSMenuItem) {
-        let clickedRowIndex = self.filesListOutlineView.clickedRow
+        let clickedRowIndex = self.treeView.clickedRow
         if clickedRowIndex < 0 {
             return
         }
-        let clickedItem = self.filesListOutlineView.item(atRow: clickedRowIndex)
+        let clickedItem = self.treeView.item(atRow: clickedRowIndex)
         if let selectedTreeNode = clickedItem as? TreeNode {
             // Confirm the removal operation.
             let confirmAlert = removalConfirmAlert([selectedTreeNode])
             confirmAlert.beginSheetModal(for: view.window!) { returnCode in
-                print(returnCode)
                 if returnCode == NSApplication.ModalResponse.alertFirstButtonReturn {
                     // Remove the given set of node objects from the tree controller.
-                    let url = selectedTreeNode.nodePath!
+                    let url = selectedTreeNode.nodeURL!
                     var staticURL: NSURL? = NSURL.init(string: "")
                     NSLog("mv \"\(url.path)\" ./Trash")
                     do {
@@ -182,37 +384,42 @@ extension TENavigationViewController: NSMenuDelegate, NSTextFieldDelegate, NSCon
                     } catch {
                         NSLog("Remove Failed")
                     }
-                    // The following line of code may cause bug
-                    //self.filesListOutlineView.removeItems(at: IndexSet.init(arrayLiteral: clickedRowIndex), inParent: nil, withAnimation: [])
-                    self.filesListOutlineView.hideRows(at: IndexSet.init(arrayLiteral: clickedRowIndex), withAnimation: [])
-                    print(returnCode)
+                    let childIndex = self.treeView.childIndex(forItem: clickedItem as Any)
+                    let indexSet = IndexSet(arrayLiteral: childIndex)
+                    let parent = self.treeView.parent(forItem: clickedItem)
+                    self.treeView.removeItems(at: indexSet, inParent: parent, withAnimation: .effectFade)
+//                    self.refreshModel()
+                    // Update to Model
+                    if let parent = parent as? TreeNode {
+                        parent.subNodes.remove(at: childIndex)
+                    } else {
+                        self.currentNode?.subNodes.remove(at: childIndex)
+                    }
+                    self.treeView.reloadItem(parent)
                 }
             }
         }
     }
-    @objc func showInFinder(sender: NSMenuItem) {
-        print("clicked row: \(self.filesListOutlineView.clickedRow)")
-        if self.filesListOutlineView.clickedRow < 0 {
-            return
+    func refreshModel() {
+        currentNode = TreeNode.init((currentNode?.nodeURL)!)
+    }
+        @objc func showInFinder(sender: NSMenuItem) {
+            print("clicked row: \(self.treeView.clickedRow)")
+            if self.treeView.clickedRow < 0 {
+                return
+            }
+            if let selectedTreeNode = self.treeView.item(atRow: self.treeView.clickedRow) as? TreeNode {
+                let url = selectedTreeNode.nodeURL!
+                NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: url.path)
+            }
         }
-        if let selectedTreeNode = self.filesListOutlineView.item(atRow: self.filesListOutlineView.clickedRow) as? TreeNode {
-            let url = selectedTreeNode.nodePath!
-//            let urlArray = [url]
-//            NSWorkspace.shared.open(urlArray,
-//                withAppBundleIdentifier: "com.apple.Finder",
-//                options: NSWorkspace.LaunchOptions.andHideOthers,
-//                additionalEventParamDescriptor: nil,
-//                launchIdentifiers: nil)
-            NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: url.path)
+        @objc func expandAllItem(sender: NSMenuItem) {
+            NSLog("expand all item..")
+            self.treeView.expandItem(nil, expandChildren: true)
         }
-    }
-    @objc func expandAllItem(sender: NSMenuItem) {
-        print("expand all item..")
-        self.filesListOutlineView.expandItem(nil, expandChildren: true)
-    }
-    @objc func collapseAllItem(sender: NSMenuItem) {
-        print("collapse all item..")
-        self.filesListOutlineView.collapseItem(nil, collapseChildren: true)
-    }
+        @objc func collapseAllItem(sender: NSMenuItem) {
+            NSLog("collapse all item..")
+            self.treeView.collapseItem(nil, collapseChildren: true)
+        }
 
-}
+    }

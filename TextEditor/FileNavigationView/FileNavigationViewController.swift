@@ -8,77 +8,91 @@
 
 import Cocoa
 class FileNavigationViewController: NSViewController {
-    static func alertInvalidPath(window: NSWindow)  {
+    // MARK: Constants
+    struct NotificationNames {
+        // Notification that the tree controller's selection has changed (used by SplitViewController).
+        static let selectionChanged = "selectionChangedNotification"
+        static let openURL = "openURLNotification"
+    }
+    var outlineViewMenu: NSMenu?
+    // Note: close SandBox before you use “ProcessInfo.processInfo.environment”
+    // Recorde clickedRow for the operation of renameItem.
+    var theLastClickedRow = -1
+    // Necessary for the operation of renameItem.
+    var itemShouldBeUsed: Any?
+//***************************************
+    static func alertInvalidPath(window: NSWindow) {
      let alert=NSAlert()
         alert.messageText="Invalid Path!"
         alert.informativeText="Error: Current path you selceted is Invalid!"
         alert.alertStyle=NSAlert.Style.critical
         alert.beginSheetModal(for: window, completionHandler: nil)
-    }
-    
+}
     @IBOutlet weak var treeView: NSOutlineView!
     @IBOutlet weak var filePath: NSPathControl!
-    var treeModel: TreeNodeModel = TreeNodeModel()
-    var preURL: URL?
+//    var treeModel = TreeNode()
+//    var currentURL: URL = URL.init(fileURLWithPath: "")
+    var defaultOpenedURL = URL.init(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!+"/Downloads/")
+    var currentNode: TreeNode?
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
 //        self.configData()
+        setupObservers()
+        self.filePath.url=defaultOpenedURL
+        print(ProcessInfo.processInfo.environment["HOME"]!)
+        loadRightClickMenu()
     }
-    func configData()  {
-        let rootNode=TreeNodeModel()
-        rootNode.name="文件夹1"
-        let rootNode2=TreeNodeModel()
-        rootNode2.name="文件夹2"
-
-        self.treeModel.childNodes.append(rootNode)
-        self.treeModel.childNodes.append(rootNode2)
-
-        let level11Node=TreeNodeModel()
-        level11Node.name="level11"
-        let level12Node=TreeNodeModel()
-        level12Node.name="level12"
-        rootNode.childNodes.append(level11Node)
-        rootNode2.childNodes.append(level12Node)
-
-        let level21Node=TreeNodeModel()
-        level21Node.name="levl21"
-        let level22Node=TreeNodeModel()
-        level22Node.name="level22"
-
-        level11Node.childNodes.append(level21Node)
-        level12Node.childNodes.append(level22Node)
+    // MARK: Notifications
+    private func setupObservers() {
+        // Notification to add a folder.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(openURL(_:)),
+            name: Notification.Name(FileNavigationViewController.NotificationNames.openURL),
+            object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(dealWithDragFileIntoTextEditorView(notification:)),
+                                               name: NSNotification.Name("dragFileIntoTextEditorView"),
+                                               object: nil)
+    }
+    // Notification sent from Document class, to openNewDocument.
+    @objc private func openURL(_ notif: Notification) {
+        guard let userInfo = notif.userInfo as? [String: Any],
+            let openURL = userInfo["openURL"] as? URL,
+            let window = notif.object as? NSWindow
+        else {
+            return
+        }
+        if window != self.view.window! {
+            return
+        }
+        repositionItemInThisDatalogTree(for: URL.init(fileURLWithPath: openURL.path))
+        //print("I am newDocumentOf:", openURL.path)
+    }
+    ///manage drag text file onto text editor view
+    @objc private func dealWithDragFileIntoTextEditorView(notification: Notification) {
+        let filePath = notification.userInfo?["filePath"]
+        let fileUrl = URL(fileURLWithPath: filePath as? String ?? "")
+        let deletedUrl = fileUrl.deletingLastPathComponent()
+        let deletedPath = deletedUrl.path
+        print("deletedPath:\(deletedPath)")
+        defaultOpenedURL = deletedUrl
+        print(deletedUrl.lastPathComponent)
+        currentNode = nil
         self.treeView.reloadData()
+        self.filePath.url = deletedUrl
     }
 // MARK: select File from pathcontrol
     @IBAction func filePathAction(_ sender: NSPathControl) {
         guard let url=sender.clickedPathItem?.url else {
             return
         }
-//        if let logURLs = LVLogPathValidator.isValid(logPath: url) {
-//            self.view.window?.title = url.path
-//            self.FilePath.url = url
-//            self.preURL=url
-              print(url.path)
-        var fileNameArray: [String]=[]
-        do {
-            fileNameArray=try FileManager.default.contentsOfDirectory(atPath: url.path)
-        } catch let error as NSError {
-            print("get file path error:\(error)")
-        }
-        for index in fileNameArray {
-                    let rootNode=TreeNodeModel()
-                    rootNode.name=index
-                    self.treeModel.childNodes.append(rootNode)
-            self.treeView.reloadData()
-        }
-//            self.parseLogs(from: logURLs)
-//            self.show(logs: logViewer?.logs)
-//            return
-//        }
-//        self.FilePath.url = self.preURL
-//    FileNavigationViewController.alertInvalidPath(window: self.view.window!)
-    }
+        defaultOpenedURL=url
+        print(url.lastPathComponent)
+        currentNode = nil
+        self.treeView.reloadData()
+}
     @objc func revealInFinder() {
         if let url = filePath.url {
             let urlArray=[url]
@@ -112,65 +126,103 @@ extension FileNavigationViewController: NSPathControlDelegate {
     }
 }
 // MARK: - NSOutlineViewDelegate
-
 extension FileNavigationViewController: NSOutlineViewDelegate {
+
     func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
-        let view = outlineView.makeView(withIdentifier: (tableColumn?.identifier)!, owner: self)
-        let subviews = view?.subviews
-        let imageView=subviews?[1] as? NSImageView ?? NSImageView.init()
-        let field=subviews?[0] as? NSTextField ?? NSTextField.init()
-        let model=item as? TreeNodeModel ?? TreeNodeModel.init()
-        field.stringValue=model.name!
-        if model.childNodes.count<=0 {
-            imageView.image=NSImage(named: NSImage.listViewTemplateName)
-        }
-        return view
+        guard let columnId = tableColumn?.identifier.rawValue else {
+                   return nil
+               }
+               var cell: NSTableCellView?
+               cell = outlineView.makeView(
+                   withIdentifier: NSUserInterfaceItemIdentifier(rawValue: columnId),
+                   owner: self
+                   ) as? NSTableCellView
+               guard let item = item as? TreeNode else {
+                   return cell
+               }
+               if columnId == "AutomaticTableColumnIdentifier.0" {
+                   cell?.textField?.stringValue = item.nodeName
+               }
+               // MARK: Icon
+               var icon: NSImage!
+               if let iconValues = try? item.nodeURL?.resourceValues(forKeys: [.customIconKey, .effectiveIconKey]) {
+                   if let customIcon = iconValues.customIcon {
+                       icon = customIcon
+                   } else if let effectiveIcon = iconValues.effectiveIcon as? NSImage {
+                       icon = effectiveIcon
+                   }
+               } else {
+                   // Failed to not find the icon from the URL, make a generic one.
+                   let osType = item.isFolder ? kGenericFolderIcon : kGenericDocumentIcon
+                   let iconType = NSFileTypeForHFSTypeCode(OSType(osType))
+                   icon = NSWorkspace.shared.icon(forFileType: iconType!)
+               }
+               cell?.imageView?.image = icon
+               return cell
     }
 
     func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
         return 20
     }
-
     func outlineViewSelectionDidChange(_ notification: Notification) {
-        guard let treeView=notification.object as? NSOutlineView else {return}
-        let row=treeView.selectedRow
-        let model=treeView.item(atRow: row)
-        let pppp = treeView.parent(forItem: model)
-
-        print("model:\(String(describing: model))")
-        print("p:\(String(describing: pppp))")
-    }
-
+            let selectedRow = treeView.selectedRow
+            if selectedRow < 0 { return }
+            var treeNode: TreeNode?
+            if let selectedTreeNode = treeView.item(atRow: selectedRow) as? TreeNode {
+                treeNode = selectedTreeNode
+            }
+            // 由于使用后台解析log，当用户可以点击 test item 时，解析可能没有结束
+            // 若这个test item解析完成，testItem?.rangesOfFailType 不为 nil
+            if treeNode?.nodeURL != nil {
+//                NSLog((treeNode?.nodeURL?.path)!+"\nat \(selectedRow) row")
+                guard let selectedTreeNode = treeView.item(atRow: treeView.selectedRow) as? TreeNode else {
+                //           treeNode1 = selectedTreeNode
+                //            print(selectedTreeNode.url)
+                            return
+                        }
+                var info = [String: TreeNode]()
+                info["selectedNode"] = selectedTreeNode
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "selectedNodeNotification"),
+                                              object: self.view.window,
+                                              userInfo: info)
+            } else {
+                let alert = NSAlert()
+                alert.messageText = "Please Wait"
+                alert.informativeText = "is on parsing..."
+                alert.alertStyle = NSAlert.Style.informational
+                alert.beginSheetModal(for: self.view.window!, completionHandler: nil)
+            }
+        }
 }
-
 // MARK: - NSOutlineViewDataSource
 extension FileNavigationViewController: NSOutlineViewDataSource {
-
+    // The first step.
     func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
-        let rootNode: TreeNodeModel
-        if item != nil {
-            rootNode=item as? TreeNodeModel ?? TreeNodeModel.init()
-        } else {
-            rootNode=self.treeModel
+        if let item = item as? TreeNode {
+            return item.subNodes.count
         }
-        return rootNode.childNodes.count
-    }
-
-    func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
-        let rootNode: TreeNodeModel
-        if item != nil {
-            rootNode=item as? TreeNodeModel ?? TreeNodeModel.init()
-        } else {
-            rootNode=self.treeModel
+        if currentNode == nil {
+            currentNode = TreeNode(defaultOpenedURL)
         }
-        return rootNode.childNodes[index]
+        return (currentNode?.subNodes.count)!
     }
-
+    // The third step.
     func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
-        let rootNode: TreeNodeModel = item as? TreeNodeModel ?? TreeNodeModel.init()
-        return rootNode.childNodes.count>0
+        guard let item = item as? TreeNode else {
+            return false
+        }
+        return item.isFolder
     }
-
+    // The second step.
+    func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
+//        if self.itemShouldBeUsed != nil {
+//            return itemShouldBeUsed!
+//        }
+        if let item = item as? TreeNode {
+            return item.subNodes[index]
+        }
+        return currentNode!.subNodes[index]
+    }
 }
 // MARK: - Extension FileManager
 extension FileManager {

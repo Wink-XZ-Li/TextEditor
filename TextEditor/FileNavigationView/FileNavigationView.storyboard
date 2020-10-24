@@ -5,10 +5,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Navigation View Controller-->
+        <!--File Navigation View Controller-->
         <scene sceneID="U9P-hX-9J8">
             <objects>
-                <viewController id="A5v-hR-vVK" customClass="TENavigationViewController" customModule="TextEditor" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="A5v-hR-vVK" customClass="FileNavigationViewController" customModule="TextEditor" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="RdD-NO-Kd0">
                         <rect key="frame" x="0.0" y="0.0" width="217" height="377"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -90,17 +90,19 @@
                                 <rect key="frame" x="-3" y="356" width="223" height="22"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <pathCell key="cell" controlSize="small" selectable="YES" editable="YES" alignment="left" pathStyle="popUp" id="AUB-k1-lvX">
-                                    <font key="font" metaFont="label" size="11"/>
-                                    <url key="url" string="file://localhost/Applications/"/>
+                                    <font key="font" metaFont="message" size="11"/>
+                                    <url key="url" string="file:///Applications/"/>
                                 </pathCell>
                                 <connections>
+                                    <action selector="filePathAction:" target="A5v-hR-vVK" id="Rb7-zp-nuQ"/>
                                     <outlet property="delegate" destination="A5v-hR-vVK" id="QR4-bL-WeS"/>
                                 </connections>
                             </pathControl>
                         </subviews>
                     </view>
                     <connections>
-                        <outlet property="filesListOutlineView" destination="Txm-HA-ubF" id="7ic-Rh-Cc6"/>
+                        <outlet property="filePath" destination="tgX-M3-XoJ" id="NbD-Ax-ysG"/>
+                        <outlet property="treeView" destination="Txm-HA-ubF" id="z7E-yl-myr"/>
                     </connections>
                 </viewController>
                 <customObject id="7AL-j9-oF3" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

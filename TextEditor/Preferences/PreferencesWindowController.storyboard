@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097.2"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Window Controller-->
+        <scene sceneID="7S8-A1-0cU">
+            <objects>
+                <windowController storyboardIdentifier="Preferences" id="9eL-La-Rtu" customClass="PreferencesWindowController" customModule="TextEditor" customModuleProvider="target" sceneMemberID="viewController">
+                    <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="qIr-hs-XD1">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+                        <rect key="contentRect" x="196" y="240" width="550" height="218"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
+                        <toolbar key="toolbar" implicitIdentifier="25C7DE90-F5EA-4073-833E-36D206096773" displayMode="iconAndLabel" sizeMode="regular" id="yrt-3X-fwQ">
+                            <allowedToolbarItems>
+                                <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="Pic-wU-pI5" customClass="ColorsController" customModule="TextEditor" customModuleProvider="target"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="xcD-1Z-HCZ"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="hQp-WG-wvy"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="760-wF-eYP"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="xqD-SN-L92"/>
+                                <toolbarItem implicitItemIdentifier="0E124686-2D56-4A1D-A0F8-CEE99AE29394" label="Display" paletteLabel="Display" image="NSPreferencesGeneral" autovalidates="NO" selectable="YES" id="yQT-I0-4H0">
+                                    <size key="minSize" width="32" height="32"/>
+                                    <size key="maxSize" width="32" height="32"/>
+                                    <connections>
+                                        <action selector="toolbarItemClicked:" target="9eL-La-Rtu" id="oBf-cX-yCJ"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="B02F0E0D-27A2-40F2-9880-E13B2C93F51B" label="Editing" paletteLabel="Editing" tag="-1" image="NSMultipleDocuments" autovalidates="NO" selectable="YES" id="vXd-wJ-CK5">
+                                    <size key="minSize" width="32" height="32"/>
+                                    <size key="maxSize" width="32" height="32"/>
+                                    <connections>
+                                        <action selector="toolbar1:" target="9eL-La-Rtu" id="isY-Ps-Tjh"/>
+                                    </connections>
+                                </toolbarItem>
+                            </allowedToolbarItems>
+                            <defaultToolbarItems>
+                                <toolbarItem reference="yQT-I0-4H0"/>
+                                <toolbarItem reference="vXd-wJ-CK5"/>
+                            </defaultToolbarItems>
+                        </toolbar>
+                        <connections>
+                            <outlet property="delegate" destination="9eL-La-Rtu" id="R7o-1y-hLv"/>
+                        </connections>
+                    </window>
+                    <connections>
+                        <outlet property="toolBar" destination="yQT-I0-4H0" id="9Hw-Tl-6K7"/>
+                        <outlet property="toolBar1" destination="vXd-wJ-CK5" id="zS9-3S-DDt"/>
+                        <segue destination="1SI-n5-Djs" kind="relationship" relationship="window.shadowedContentViewController" id="cNA-sv-5Gv"/>
+                    </connections>
+                </windowController>
+                <customObject id="wQU-bH-RQK" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="35" y="-349"/>
+        </scene>
+        <!--Preferences View Controller-->
+        <scene sceneID="Bgo-QC-RR9">
+            <objects>
+                <customObject id="oo6-2j-Typ" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <viewController id="1SI-n5-Djs" customClass="PreferencesViewController" customModule="TextEditor" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="0Yw-is-Bcd">
+                        <rect key="frame" x="0.0" y="0.0" width="558" height="246"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </view>
+                    <connections>
+                        <segue destination="hmy-7Y-n0N" kind="show" id="0K4-iL-7mn"/>
+                        <segue destination="QuW-gt-sIn" kind="show" id="k55-jh-IVh"/>
+                    </connections>
+                </viewController>
+            </objects>
+            <point key="canvasLocation" x="35" y="28"/>
+        </scene>
+        <!--Show Line Number-->
+        <scene sceneID="lj2-Ks-97P">
+            <objects>
+                <customObject id="jWO-NX-lXS" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <viewController title="" storyboardIdentifier="FirstVC" id="hmy-7Y-n0N" customClass="ShowLineNumber" customModule="TextEditor" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="3Nf-1f-7jn">
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tpe-VI-9DR">
+                                <rect key="frame" x="208" y="175" width="130" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="check" title="Show line number" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="86K-Qo-olX" customClass="ShowLineNumber">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <connections>
+                                        <action selector="isShowLineNumberView:" target="hmy-7Y-n0N" id="kAw-sY-qxm"/>
+                                    </connections>
+                                </buttonCell>
+                            </button>
+                        </subviews>
+                    </view>
+                </viewController>
+            </objects>
+            <point key="canvasLocation" x="-238" y="425"/>
+        </scene>
+        <!--Default Text Encoding-->
+        <scene sceneID="Oez-YE-8cU">
+            <objects>
+                <customObject id="oJa-Is-bfh" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <viewController title="" storyboardIdentifier="SecondVC" id="QuW-gt-sIn" customClass="DefaultTextEncoding" customModule="TextEditor" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="OTo-Iu-nSQ">
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KZX-cN-Fk1">
+                                <rect key="frame" x="78" y="176" width="144" height="16"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Default Text Encoding :" id="TNr-5s-Uxj">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kt9-Gd-boR">
+                                <rect key="frame" x="225" y="170" width="208" height="25"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <popUpButtonCell key="cell" type="push" title="utf-8CSString" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" allowsMixedState="YES" imageScaling="proportionallyDown" inset="2" selectedItem="gjG-wF-3qY" id="BmZ-mT-HIy">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <menu key="menu" id="L4R-Mb-Yrl">
+                                        <items>
+                                            <menuItem title="utf-8" id="SF8-Lu-gaY"/>
+                                            <menuItem title="utf-16" id="Ec5-bv-h7l"/>
+                                            <menuItem title="utf-8CSString" state="on" id="gjG-wF-3qY"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <action selector="popUpBtnAction:" target="QuW-gt-sIn" id="KP3-BQ-eSo"/>
+                                </connections>
+                            </popUpButton>
+                        </subviews>
+                    </view>
+                    <connections>
+                        <outlet property="popUpButton" destination="kt9-Gd-boR" id="s5e-34-qfv"/>
+                    </connections>
+                </viewController>
+            </objects>
+            <point key="canvasLocation" x="289" y="431"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="NSMultipleDocuments" width="32" height="32"/>
+        <image name="NSPreferencesGeneral" width="32" height="32"/>
+    </resources>
+</document>

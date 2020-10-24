@@ -47,5 +47,36 @@ class Document: NSDocument {
         //If you do, you should also override isEntireFileLoaded to return false if the contents are lazily loaded.
         throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
     }
+    
+    //save as保存文件
+    override func write(to url: URL, ofType typeName: String) throws {
+            NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: url.path)
+            if typeName == "public.plain-text" {
+                var userInfo = [String: Any]()
+                userInfo["url"] = url
+                userInfo["typeName"] = typeName
+                NotificationCenter.default.post(name: Notification.Name("saveDataViaObserve"),
+                                                object: self, userInfo: userInfo)
+            }
+             if typeName == "public.rtf" {
+                var userInfo = [String: Any]()
+                userInfo["url"] = url
+                userInfo["typeName"] = typeName
+                NotificationCenter.default.post(name: Notification.Name("saveDataViaObserve"),
+                                                object: self, userInfo: userInfo)
+            }
+        }
+    
+    override func read(from url: URL, ofType typeName: String) throws {
+        self.showWindows()
+        NSDocumentController.shared.addDocument(self)
 
+        var userInfo = [String: Any]()
+        userInfo["openURL"] = url
+        let time = DispatchTimeInterval.milliseconds(3)
+        DispatchQueue.main.asyncAfter(deadline: .now() + time) {
+            NotificationCenter.default.post(name: Notification.Name(FileNavigationViewController.NotificationNames.openURL),
+                                            object: self.windowControllers.last?.window, userInfo: userInfo)
+        }
+    }
 }
