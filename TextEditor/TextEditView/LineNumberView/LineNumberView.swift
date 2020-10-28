@@ -124,7 +124,7 @@ class LineNumberRulerView: NSRulerView {
                 if row == 0 {
                     let rowMini = scanText(textView.string)
                     let digitMini = theDigitOfLineNumber(rowMini)
-                    print(rowMini, digitMini)
+                    //print(rowMini, digitMini)
                     self.ruleThickness = (CGFloat(digitMini) * attributeString.size().width) + 8
                 } else {
                     self.ruleThickness = (CGFloat(digit) * attributeString.size().width) + 8
@@ -150,7 +150,8 @@ class LineNumberRulerView: NSRulerView {
                     lineNumber = newLineCountBeforeThisGrain +
                         newLineRegex!.numberOfMatches(in: textView.string,
                                                       options: [],
-                                                      range: NSMakeRange(grainArray[low], firstVisibleGlyphCharacterIndex - grainArray[low])) + 1
+                                                      range: NSMakeRange(grainArray[low],
+                                                                         firstVisibleGlyphCharacterIndex - grainArray[low])) + 1
                 } else {
                     lineNumber = newLineRegex!.numberOfMatches(in: textView.string,
                                                                options: [],
@@ -215,36 +216,6 @@ class LineNumberRulerView: NSRulerView {
             }
             fieldScanner.scanUpToCharacters(from: .newlines)
         }
-//        if row > 100 {
-//            let alert = NSAlert()
-//            alert.addButton(withTitle: "OK")
-//            alert.informativeText = "Using line numbers will result in poor performance!"
-//            alert.messageText = "Alert"
-//            alert.addButton(withTitle: "Hidden")
-//            alert.alertStyle = .informational
-//            alert.beginSheetModal(for: self.window!, completionHandler: nil)
-//            let userInfo = [NSLocalizedDescriptionKey: "alert"]
-//            let error = NSError(domain: NSOSStatusErrorDomain, code: 0, userInfo: userInfo)
-//            let alert = NSAlert(error: error)
-//            alert.messageText = "Alert"
-//            alert.addButton(withTitle: "Hidden")
-//            alert.addButton(withTitle: "Cancel")
-//            alert.informativeText = "Using line numbers will result in poor performance!"
-//            if let window = self.window {
-//                alert.beginSheetModal(for: window) { [unowned self] (response) in
-//                    print(response)
-//                    switch response.rawValue {
-//                    case 1000: let rulersvisible = true
-//                               NotificationCenter.default.post(name: Notification.Name(rawValue: "textView.enclosingScrollView?.rulersVisible"),
-//                                                                object: self.window,
-//                                                                userInfo: ["rulersvisible": rulersvisible])
-//                    case 1001: break
-//                    case 1002: print("1002")
-//                    default: break
-//                    }
-//                }
-//            }
-//        }
         return row
     }
 }

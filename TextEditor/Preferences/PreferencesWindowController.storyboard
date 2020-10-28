@@ -10,7 +10,7 @@
             <objects>
                 <windowController storyboardIdentifier="Preferences" id="9eL-La-Rtu" customClass="PreferencesWindowController" customModule="TextEditor" customModuleProvider="target" sceneMemberID="viewController">
                     <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="qIr-hs-XD1">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="550" height="218"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
@@ -91,10 +91,14 @@
                                         <action selector="isShowLineNumberView:" target="hmy-7Y-n0N" id="kAw-sY-qxm"/>
                                     </connections>
                                 </buttonCell>
+                                <connections>
+                                    <binding destination="Xzx-fF-RJU" name="value" keyPath="values.saveshowlinenumber" id="3br-E2-KMq"/>
+                                </connections>
                             </button>
                         </subviews>
                     </view>
                 </viewController>
+                <userDefaultsController id="Xzx-fF-RJU"/>
             </objects>
             <point key="canvasLocation" x="-238" y="425"/>
         </scene>
@@ -132,6 +136,7 @@
                                 </popUpButtonCell>
                                 <connections>
                                     <action selector="popUpBtnAction:" target="QuW-gt-sIn" id="KP3-BQ-eSo"/>
+                                    <binding destination="1xd-Y4-btP" name="selectedIndex" keyPath="values.saveEncoding" id="V5J-4R-Asv"/>
                                 </connections>
                             </popUpButton>
                         </subviews>
@@ -140,6 +145,7 @@
                         <outlet property="popUpButton" destination="kt9-Gd-boR" id="s5e-34-qfv"/>
                     </connections>
                 </viewController>
+                <userDefaultsController representsSharedInstance="YES" id="1xd-Y4-btP"/>
             </objects>
             <point key="canvasLocation" x="289" y="431"/>
         </scene>

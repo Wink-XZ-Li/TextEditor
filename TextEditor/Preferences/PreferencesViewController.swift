@@ -13,10 +13,17 @@ class PreferencesViewController: NSViewController {
     var currentController: NSViewController?
     override func viewDidLoad() {
         super.viewDidLoad()  // Do any additional setup after loading the view.
+        //print(UserDefaults.standard.object(forKey: "preferences")!)
         self.initiateControllers()
         self.changeViewController(0)
-        NotificationCenter.default.addObserver(self, selector: #selector(showLineNumberValue(notification:)), name: NSNotification.Name(rawValue: "ShowLineNumber"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(defaultTextEncodingValue(notification:)), name: NSNotification.Name(rawValue: "DefaultTextEncoding"), object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(showLineNumberValue(notification:)),
+                                               name: NSNotification.Name(rawValue: "ShowLineNumber"),
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(defaultTextEncodingValue(notification:)),
+                                               name: NSNotification.Name(rawValue: "DefaultTextEncoding"),
+                                               object: nil)
     }
     @objc func showLineNumberValue(notification: Notification) {
         let dic = notification.userInfo! as Dictionary
@@ -27,8 +34,10 @@ class PreferencesViewController: NSViewController {
         self.changeViewController(dic["selectnumber"]! as? Int ?? Int.init())
     }
     func initiateControllers() {
-        let vc1 = self.storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("FirstVC")) as? NSViewController ?? NSViewController.init()
-        let vc2 = self.storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("SecondVC")) as? NSViewController ?? NSViewController.init()
+        let vc1 = self.storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("FirstVC"))
+            as? NSViewController ?? NSViewController.init()
+        let vc2 = self.storyboard?.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("SecondVC"))
+            as? NSViewController ?? NSViewController.init()
         self.addChild(vc1)
         self.addChild(vc2)
     }

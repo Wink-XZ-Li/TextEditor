@@ -31,8 +31,6 @@ class FileNavigationViewController: NSViewController {
 }
     @IBOutlet weak var treeView: NSOutlineView!
     @IBOutlet weak var filePath: NSPathControl!
-//    var treeModel = TreeNode()
-//    var currentURL: URL = URL.init(fileURLWithPath: "")
     var defaultOpenedURL = URL.init(fileURLWithPath: ProcessInfo.processInfo.environment["HOME"]!+"/Downloads/")
     var currentNode: TreeNode?
     override func viewDidLoad() {
@@ -41,11 +39,21 @@ class FileNavigationViewController: NSViewController {
 //        self.configData()
         setupObservers()
         self.filePath.url=defaultOpenedURL
-        print(ProcessInfo.processInfo.environment["HOME"]!)
+//        print(ProcessInfo.processInfo.environment["HOME"]!)
         loadRightClickMenu()
     }
+     @objc private func loadDragFileFromIcon(notice: NSNotification) {
+        guard let receiveInfo=notice.userInfo?["dragFileToIcon"] as? [String] else {return}
+//        print("observer", receiveInfo[0])
+        let receiveURL=URL(fileURLWithPath: receiveInfo[0])
+        defaultOpenedURL=receiveURL
+        currentNode = nil
+        self.treeView.reloadData()
+           }
     // MARK: Notifications
     private func setupObservers() {
+        //drag file to icon
+        NotificationCenter.default.addObserver(self, selector: #selector(loadDragFileFromIcon(notice:)), name: NSNotification.Name(rawValue: "dragFileToIcon"), object: nil)
         // Notification to add a folder.
         NotificationCenter.default.addObserver(
             self,
@@ -76,10 +84,10 @@ class FileNavigationViewController: NSViewController {
         let filePath = notification.userInfo?["filePath"]
         let fileUrl = URL(fileURLWithPath: filePath as? String ?? "")
         let deletedUrl = fileUrl.deletingLastPathComponent()
-        let deletedPath = deletedUrl.path
-        print("deletedPath:\(deletedPath)")
+//        let deletedPath = deletedUrl.path
+//        print("deletedPath:\(deletedPath)")
         defaultOpenedURL = deletedUrl
-        print(deletedUrl.lastPathComponent)
+//        print(deletedUrl.lastPathComponent)
         currentNode = nil
         self.treeView.reloadData()
         self.filePath.url = deletedUrl
@@ -90,7 +98,7 @@ class FileNavigationViewController: NSViewController {
             return
         }
         defaultOpenedURL=url
-        print(url.lastPathComponent)
+//        print(url.lastPathComponent)
         currentNode = nil
         self.treeView.reloadData()
 }
@@ -120,12 +128,13 @@ extension FileNavigationViewController: NSPathControlDelegate {
         let nsUrl = NSURL(from: info.draggingPasteboard)
         if let url = nsUrl?.filePathURL {
             if url.path.checkFileTypeWhetherFolder(filePath: url.path) {
-                print(url.absoluteURL)
+//                print(url.absoluteURL)
                 defaultOpenedURL = url as URL
                 currentNode = nil
                 self.treeView.reloadData()
                 self.filePath.url = url as URL
-                NotificationCenter.default.post(name: Notification.Name("dragFolderOntoPathControl"), object: self.view.window)
+                NotificationCenter.default.post(name: Notification.Name("dragFolderOntoPathControl"),
+                                                object: self.view.window)
                 return true
             } else {
                 FileNavigationViewController.alertInvalidPath(window: self.view.window!)

@@ -30,7 +30,8 @@ class Document: NSDocument {
     }
     override func makeWindowControllers() {
         let storyboard=NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-        let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as? NSWindowController ?? NSWindowController.init()
+        let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller"))
+            as? NSWindowController ?? NSWindowController.init()
         windowController.window?.minSize=NSMakeSize(400, 300)
         self.addWindowController(windowController)
     }
@@ -48,7 +49,6 @@ class Document: NSDocument {
         //If you do, you should also override isEntireFileLoaded to return false if the contents are lazily loaded.
         throw NSError(domain: NSOSStatusErrorDomain, code: unimpErr, userInfo: nil)
     }
-    
     //save as保存文件
     override func write(to url: URL, ofType typeName: String) throws {
             NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: url.path)
@@ -67,7 +67,6 @@ class Document: NSDocument {
                                                 object: self, userInfo: userInfo)
             }
         }
-    
     override func read(from url: URL, ofType typeName: String) throws {
         self.showWindows()
         NSDocumentController.shared.addDocument(self)

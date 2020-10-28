@@ -696,7 +696,11 @@
                         <toolbar key="toolbar" implicitIdentifier="7C131E02-0728-456B-8610-8326CD39E085" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="regular" id="NJo-oc-rl7">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="fTJ-jT-2PV"/>
-                                <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="pg2-19-af2"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="pg2-19-af2">
+                                    <connections>
+                                        <binding destination="zj3-fM-bF1" name="enabled" keyPath="values.saveFonts" id="jO7-DR-Taq"/>
+                                    </connections>
+                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="C5T-ND-mDS"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="HcL-xD-ack"/>
                                 <toolbarItem implicitItemIdentifier="3EFDFD85-68E1-45F2-A1BE-6EA7DF8B1065" label="Custom View" paletteLabel="Custom View" sizingBehavior="auto" id="v2k-dN-9zV">
@@ -732,6 +736,7 @@
                     </connections>
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <userDefaultsController representsSharedInstance="YES" id="zj3-fM-bF1"/>
             </objects>
             <point key="canvasLocation" x="75" y="250"/>
         </scene>

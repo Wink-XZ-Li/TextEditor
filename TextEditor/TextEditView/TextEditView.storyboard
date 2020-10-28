@@ -22,6 +22,11 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="F7f-Iu-K7B">
+                                <rect key="frame" x="12" y="365" width="36" height="28"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSMultipleDocuments" id="xGD-3y-n86"/>
+                            </imageView>
                             <scrollView fixedFrame="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bi8-Kj-Wdm">
                                 <rect key="frame" x="0.0" y="0.0" width="611" height="364"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -29,7 +34,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="596" height="364"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="bar" incrementalSearchingEnabled="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="Fhn-P1-rMo" customClass="TextView" customModule="TextEditor" customModuleProvider="target">
+                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="bar" incrementalSearchingEnabled="YES" allowsDocumentBackgroundColorChange="YES" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="Fhn-P1-rMo" customClass="TextView" customModule="TextEditor" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="596" height="364"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -981,11 +986,6 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="F7f-Iu-K7B">
-                                <rect key="frame" x="12" y="365" width="36" height="28"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSMultipleDocuments" id="xGD-3y-n86"/>
-                            </imageView>
                         </subviews>
                     </view>
                     <connections>

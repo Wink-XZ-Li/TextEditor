@@ -14,13 +14,14 @@ import Cocoa
     var grainArray = [Int]()
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
+
         // Drawing code here.
     }
-// MARK: - override menu
-override func menu(for event: NSEvent) -> NSMenu? {
-    guard let menu = super.menu(for: event) else { return nil }
-    // add "Find" "Select All" menu item
-    // pasteIndex + 1
+    // MARK: - override menu
+    override func menu(for event: NSEvent) -> NSMenu? {
+        guard let menu = super.menu(for: event) else { return nil }
+        // add "Find" "Select All" menu item
+        // pasteIndex + 1
         let pasteIndex = menu.indexOfItem(withTarget: nil, andAction: #selector(paste(_:)))
         if pasteIndex >= 0 {  // -1 == not found
             menu.insertItem(withTitle: "Find",
@@ -53,15 +54,17 @@ override func menu(for event: NSEvent) -> NSMenu? {
         if let board = sender.draggingPasteboard.propertyList(forType: NSFilenamesPboardType) as? NSArray,
             let filePath = board[0] as? String {
             if filePath.checkFileTypeWhetherText(filePath: filePath) {
-                    displayText(from: filePath)
-                    print(filePath)
-                    var userInfo = [AnyHashable: Any]()
-                    userInfo["filePath"] = filePath
-                    //let aaaa = filePath
-                    NotificationCenter.default.post(name: Notification.Name("dragFileIntoTextEditorView"),
-                                                    object: self.window,
-                                                    userInfo: userInfo)
-            } else if filePath.checkFileTypeWhetherFolder(filePath: filePath){
+                if filePath.checkFileTypeWhetherText(filePath: filePath) {
+                        displayText_Wink(from: filePath)
+                        print(filePath)
+                        var userInfo = [AnyHashable: Any]()
+                        userInfo["filePath"] = filePath
+                        //let aaaa = filePath
+                        NotificationCenter.default.post(name: Notification.Name("dragFileIntoTextEditorView"),
+                                                        object: self.window,
+                                                        userInfo: userInfo)
+                }
+            } else if filePath.checkFileTypeWhetherFolder(filePath: filePath) {
                 let alert = NSAlert()
                 alert.addButton(withTitle: "OK")
                 alert.informativeText = "This is not a text type!"
@@ -72,7 +75,7 @@ override func menu(for event: NSEvent) -> NSMenu? {
         }
         return true
     }
-    func displayText(from file: String) {
+    func displayText_Wink(from file: String) {
         var textValue: String?
         do {
             textValue=try String(contentsOfFile: file)
@@ -87,7 +90,6 @@ override func menu(for event: NSEvent) -> NSMenu? {
         self.frame.size.height = maxHeightForTextRect
         self.textContainer?.size.height = maxHeightForTextRect
         self.calculateLineCount()
-        self.lnv_setUpLineNumberView()
     }
     ///计算行数
     func calculateLineCount() {
@@ -95,7 +97,6 @@ override func menu(for event: NSEvent) -> NSMenu? {
         var newLineCount = 1
         var grainArray = [0] //[Int]()
         let fieldScanner = Scanner(string: self.string)
-        //fieldScanner.charactersToBeSkipped = .none
         while !fieldScanner.isAtEnd {
             if !(fieldScanner.scanString("\n") != nil) {
                 newLineCount += 1
