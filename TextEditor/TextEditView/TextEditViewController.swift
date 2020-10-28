@@ -20,22 +20,17 @@ class TextEditViewController: NSViewController {
     //var myfont: NSFont?
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
-        //保存修改字体字号、颜色配置
-//         if(myfont == nil){
-//             //myfont = textview.font
-//             myfont = self.textView.font
-//         }else{
-//             //textview.font = myfont
-//             myfont = self.textView.font
-//             self.textView.font = myfont
-//             print(self.textView.font)
-//         }
-//         //let abc = self.textview.font
-//        // let def = self.
-//         //print(self.textview.font)
         setupObservers()
         textView.lnv_setUpLineNumberView()
+}
+    //******************************************************************************************
+    // MARK: Notifications
+    private func setupObservers() {
+        // Notification to add a folder.
+        NotificationCenter.default.addObserver(self, selector: #selector(showTextFile),
+                                               name:
+                                                    NSNotification.Name(rawValue: FileNavigationViewController.NotificationNames.selectionChanged),
+                                               object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(dealSelectedItem(notice:)),
                                                name: NSNotification.Name(rawValue: "Encoding"),
                                                object: self.view.window)
@@ -52,14 +47,15 @@ class TextEditViewController: NSViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(dealWithDragFileIntoTextEditorView(notification:)),
                                                name: NSNotification.Name("dragFileIntoTextEditorView"),
                                                object: nil)
-}
-    //******************************************************************************************
-    // MARK: Notifications
-    private func setupObservers() {
-        // Notification to add a folder.
-        NotificationCenter.default.addObserver(self, selector: #selector(showTextFile), name:
-            NSNotification.Name(rawValue: FileNavigationViewController.NotificationNames.selectionChanged), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(dragOntoPathControl),
+                                               name: Notification.Name(rawValue: "dragFolderOntoPathControl"),
+                                               object: nil)
     }
+    //receive the notification of drag onto path control
+    @objc private func dragOntoPathControl(notification: Notification) {
+        
+    }
+    //receive the notification of drag onto text edit view
     @objc private func dealWithDragFileIntoTextEditorView(notification: Notification) {
         let filePath = notification.userInfo?["filePath"]
         let labelImageURL = URL(fileURLWithPath: filePath as? String ?? "")
@@ -159,13 +155,14 @@ class TextEditViewController: NSViewController {
             label.stringValue = labeName
             url = URL.init(fileURLWithPath: readPath)
             if checkFileTypeWhetherText(filePath: readPath ?? "/Users") {
-              displayText(from: readPath)
+                textView.displayText(from: readPath)
 //                self.textView.string = ""
 //                try? textView.textStorage?.read(from: url!, options: [:], documentAttributes: nil, error: ())
                 TextEditViewController.self.Information.textPath = readPath
     //            print("display")
             } else {
                 TextEditViewController.self.Information.textPath = readPath
+                textView.string=""
     //            TextEditViewController.self.Information.textPath = ""
             }
         }
@@ -191,22 +188,6 @@ class TextEditViewController: NSViewController {
             let charset = output[output.index(after: output.firstIndex(of: "=")!)..<output.endIndex]
             return (String(docType), String(charset))
         }
-    func displayText(from file: String) {
-        var textValue: String?
-        do {
-            textValue=try String(contentsOfFile: file)
-        } catch {
-            print("Unable to read \(file)")
-        }
-        let textStorage=textView.textStorage!
-        textStorage.beginEditing()
-        textStorage.replaceCharacters(in: .init(location: 0, length: textStorage.length), with: textValue!)
-        textStorage.endEditing()
-        let maxHeightForTextRect = CGFloat(1000_000_000) // 大约最多能承载 30_000_000 行
-        self.textView.frame.size.height = maxHeightForTextRect
-        self.textView.textContainer?.size.height = maxHeightForTextRect
-    }
-
     // 菜单栏save as的方法
     @objc func saveDataViaObserve(notice: Notification) {
         guard let url = notice.userInfo?["url"] as? URL,

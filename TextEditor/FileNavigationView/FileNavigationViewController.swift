@@ -14,6 +14,7 @@ class FileNavigationViewController: NSViewController {
         static let selectionChanged = "selectionChangedNotification"
         static let openURL = "openURLNotification"
     }
+    static let NSFilenamesPboardType = NSPasteboard.PasteboardType("NSFilenamesPboardType")
     var outlineViewMenu: NSMenu?
     // Note: close SandBox before you use “ProcessInfo.processInfo.environment”
     // Recorde clickedRow for the operation of renameItem.
@@ -116,12 +117,20 @@ extension FileNavigationViewController: NSPathControlDelegate {
         return NSDragOperation.copy
     }
     func pathControl(_ pathControl: NSPathControl, acceptDrop info: NSDraggingInfo) -> Bool {
-        let nsUrl=NSURL(from: info.draggingPasteboard)
-        if let url=nsUrl?.filePathURL {
-            print(url.absoluteURL)
-//            return true
+        let nsUrl = NSURL(from: info.draggingPasteboard)
+        if let url = nsUrl?.filePathURL {
+            if url.path.checkFileTypeWhetherFolder(filePath: url.path) {
+                print(url.absoluteURL)
+                defaultOpenedURL = url as URL
+                currentNode = nil
+                self.treeView.reloadData()
+                self.filePath.url = url as URL
+                NotificationCenter.default.post(name: Notification.Name("dragFolderOntoPathControl"), object: self.view.window)
+                return true
+            } else {
+                FileNavigationViewController.alertInvalidPath(window: self.view.window!)
+            }
         }
-        FileNavigationViewController.alertInvalidPath(window: self.view.window!)
         return false
     }
 }

@@ -31,6 +31,7 @@ class Document: NSDocument {
     override func makeWindowControllers() {
         let storyboard=NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
         let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as? NSWindowController ?? NSWindowController.init()
+        windowController.window?.minSize=NSMakeSize(400, 300)
         self.addWindowController(windowController)
     }
 

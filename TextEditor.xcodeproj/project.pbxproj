@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		26496FBB2543C8E5000B8645 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26496FBA2543C8E5000B8645 /* String.swift */; };
 		38C539782535378200D2DC10 /* LineNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38C539762535378200D2DC10 /* LineNumberView.swift */; };
 		38EBB76E2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38EBB76C2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift */; };
 		4A7FA27E2535BEDF00A8701F /* DefaultTextEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7FA2782535BEDF00A8701F /* DefaultTextEncoding.swift */; };
@@ -31,6 +32,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		26496FBA2543C8E5000B8645 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		38C539762535378200D2DC10 /* LineNumberView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineNumberView.swift; sourceTree = "<group>"; };
 		38EBB76C2535A8FE0003214F /* TENavigationViewController+NSMenuDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TENavigationViewController+NSMenuDelegate.swift"; sourceTree = "<group>"; };
 		4A7FA2782535BEDF00A8701F /* DefaultTextEncoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultTextEncoding.swift; sourceTree = "<group>"; };
@@ -76,6 +78,14 @@
 			path = LineNumberView;
 			sourceTree = "<group>";
 		};
+		26496FB92543C8CE000B8645 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				26496FBA2543C8E5000B8645 /* String.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		4A7FA2772535BEDF00A8701F /* Preferences */ = {
 			isa = PBXGroup;
 			children = (
@@ -118,6 +128,7 @@
 				CB4B1478252D9D2D0037A41F /* SplitViewController.swift */,
 				CB478B402521CD1B00CAAE2C /* Info.plist */,
 				CB478B412521CD1B00CAAE2C /* TextEditor.entitlements */,
+				26496FB92543C8CE000B8645 /* Extension */,
 				4A7FA2772535BEDF00A8701F /* Preferences */,
 				CB478B532521D9FB00CAAE2C /* TextEditView */,
 				CB478B472521CD2000CAAE2C /* FileNavigationView */,
@@ -255,6 +266,7 @@
 				CB4B1479252D9D2D0037A41F /* SplitViewController.swift in Sources */,
 				CBD2DB1925246FAC005E45A5 /* TextView.swift in Sources */,
 				4A7FA2832535BEDF00A8701F /* PreferencesWindowController.swift in Sources */,
+				26496FBB2543C8E5000B8645 /* String.swift in Sources */,
 				CB478B3A2521CD1A00CAAE2C /* ViewController.swift in Sources */,
 				CB478B382521CD1A00CAAE2C /* AppDelegate.swift in Sources */,
 			);
@@ -399,6 +411,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bignerdranch.TextEditor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -417,6 +430,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bignerdranch.TextEditor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

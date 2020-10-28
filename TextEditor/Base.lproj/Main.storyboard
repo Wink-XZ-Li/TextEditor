@@ -740,7 +740,7 @@
             <objects>
                 <splitViewController id="Zrf-5Z-ay9" customClass="SplitViewController" customModule="TextEditor" customModuleProvider="target" sceneMemberID="viewController">
                     <splitViewItems>
-                        <splitViewItem id="A0y-MR-W9l"/>
+                        <splitViewItem canCollapse="YES" holdingPriority="251" id="A0y-MR-W9l"/>
                         <splitViewItem id="Hbc-x7-S2e"/>
                     </splitViewItems>
                     <splitView key="splitView" dividerStyle="thin" vertical="YES" id="HUD-L4-MW0">

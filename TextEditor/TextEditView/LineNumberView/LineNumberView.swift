@@ -13,7 +13,7 @@ var lineNumberViewAssocObjKey: UInt8 = 0
 
 var savepreferencesbool = true
 
-extension NSTextView {
+extension TextView {
     var lineNumberView: LineNumberRulerView? {
         get {
             return objc_getAssociatedObject(self, &lineNumberViewAssocObjKey) as? LineNumberRulerView
@@ -85,13 +85,18 @@ class LineNumberRulerView: NSRulerView {
     var font: NSFont! {
         didSet { self.needsDisplay = true }
     }
+    let grainSize: Int
+    let grainArray: [Int]
    // var rulerViewWidth: CGFloat
-    init(textView: NSTextView) {
+    init(textView: TextView) {
+        self.grainSize = textView.grainSize
+        self.grainArray = textView.grainArray
         super.init(scrollView: textView.enclosingScrollView!, orientation: NSRulerView.Orientation.verticalRuler)
-        self.font = NSFont.systemFont(ofSize: 12)
+        self.font = textView.font ?? NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
         //self.rulerViewWidth = NSFont.systemFont(ofSize: 12)
         self.clientView = textView
-        self.ruleThickness = 40
+        self.ruleThickness = NSAttributedString(string: String(grainArray.count * grainSize),
+                                                attributes: [.font: self.font as Any]).size().width + 5
     }
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -105,23 +110,52 @@ class LineNumberRulerView: NSRulerView {
                 ///convert the origin
                 let relativePoint = self.convert(NSPoint(x: 0, y: 0), from: textView)
                 let lineNumberAttributes = [NSAttributedString.Key.font: textView.font ?? NSFont.systemFont(ofSize: 12),
-                NSAttributedString.Key.foregroundColor: NSColor.gray] as [NSAttributedString.Key: Any]
-                ///draw the line number on the specifying point
+                                            NSAttributedString.Key.foregroundColor: NSColor.gray] as [NSAttributedString.Key: Any]
                 let drawLineNumber = { (lineNumberString: String, yValue: CGFloat) -> Void in
                     let attributeString = NSAttributedString(string: lineNumberString, attributes: lineNumberAttributes)
-                    let xValue: CGFloat = 35 - attributeString.size().width//5
+                    let xValue: CGFloat = self.ruleThickness - attributeString.size().width - 5
                     attributeString.draw(at: NSPoint(x: xValue, y: relativePoint.y + yValue))
                 }
+                //*******************
+                let attributeString = NSAttributedString(string: "8", attributes: lineNumberAttributes)
+                //print(grainArray)
+                let row = (100 * (self.grainArray.count - 1))
+                let digit = theDigitOfLineNumber(row)
+                if row == 0 {
+                    let rowMini = scanText(textView.string)
+                    let digitMini = theDigitOfLineNumber(rowMini)
+                    print(rowMini, digitMini)
+                    self.ruleThickness = (CGFloat(digitMini) * attributeString.size().width) + 8
+                } else {
+                    self.ruleThickness = (CGFloat(digit) * attributeString.size().width) + 8
+                }
+                //*******************
                 let visibleGlyphRange = layoutManager.glyphRange(forBoundingRect: textView.visibleRect,
                                                                  in: textContainer)
                 let firstVisibleGlyphCharacterIndex = layoutManager.characterIndexForGlyph(at: visibleGlyphRange.location)
                 let newLineRegex = try? NSRegularExpression(pattern: "\n", options: [])
-                /// The numbers of line number
-                var lineNumber = newLineRegex?.numberOfMatches(in: textView.string,
+                var lineNumber = 0
+                if grainArray.count > 1 {
+                    var low = 0
+                    var high = grainArray.count
+                    while low + 1 < high {
+                        let mid = (low + high) / 2
+                        if firstVisibleGlyphCharacterIndex < grainArray[mid] {
+                            high = mid
+                        } else {
+                            low = mid
+                        }
+                    }
+                    let newLineCountBeforeThisGrain = low * grainSize
+                    lineNumber = newLineCountBeforeThisGrain +
+                        newLineRegex!.numberOfMatches(in: textView.string,
+                                                      options: [],
+                                                      range: NSMakeRange(grainArray[low], firstVisibleGlyphCharacterIndex - grainArray[low])) + 1
+                } else {
+                    lineNumber = newLineRegex!.numberOfMatches(in: textView.string,
                                                                options: [],
-                                                               range: NSMakeRange(0, firstVisibleGlyphCharacterIndex)) ?? 1
-                lineNumber += 1
-                //var digit = self.theDigitOfLineNumber(lineNumber)
+                                                               range: NSMakeRange(0, firstVisibleGlyphCharacterIndex)) + 1
+                }
                 var glyphIndexForStringLine = visibleGlyphRange.location
                 //go through each line of the string
                 while glyphIndexForStringLine < NSMaxRange(visibleGlyphRange) {
@@ -151,12 +185,6 @@ class LineNumberRulerView: NSRulerView {
                     glyphIndexForStringLine = NSMaxRange(glyphRangeForStringLine)
                     lineNumber += 1
                 }
-                ///calcute the digit of lineNumber
-//                digit = self.theDigitOfLineNumber(lineNumber)
-//                let attributeString = NSAttributedString(string: "8", attributes: lineNumberAttributes)
-//                self.ruleThickness = (CGFloat(digit) * attributeString.size().width) + 10
-                //self.ruleThickness = (1 * attributeString.size().width) + 5
-                // Draw line number for the extra line at the end of the text
                 if layoutManager.extraLineFragmentTextContainer != nil {
                     drawLineNumber("\(lineNumber)", layoutManager.extraLineFragmentRect.minY)
                 }
@@ -175,5 +203,48 @@ class LineNumberRulerView: NSRulerView {
             }
             return digit
         }
+    }
+    ///scan the text and return the number of rows of the text
+    func scanText(_ string: String) -> Int {
+        let fieldScanner = Scanner(string: string)
+        fieldScanner.charactersToBeSkipped = .none
+        var row = 1
+        while !fieldScanner.isAtEnd {
+            if fieldScanner.scanString("\n", into: nil) {
+                row += 1
+            }
+            fieldScanner.scanUpToCharacters(from: .newlines)
+        }
+//        if row > 100 {
+//            let alert = NSAlert()
+//            alert.addButton(withTitle: "OK")
+//            alert.informativeText = "Using line numbers will result in poor performance!"
+//            alert.messageText = "Alert"
+//            alert.addButton(withTitle: "Hidden")
+//            alert.alertStyle = .informational
+//            alert.beginSheetModal(for: self.window!, completionHandler: nil)
+//            let userInfo = [NSLocalizedDescriptionKey: "alert"]
+//            let error = NSError(domain: NSOSStatusErrorDomain, code: 0, userInfo: userInfo)
+//            let alert = NSAlert(error: error)
+//            alert.messageText = "Alert"
+//            alert.addButton(withTitle: "Hidden")
+//            alert.addButton(withTitle: "Cancel")
+//            alert.informativeText = "Using line numbers will result in poor performance!"
+//            if let window = self.window {
+//                alert.beginSheetModal(for: window) { [unowned self] (response) in
+//                    print(response)
+//                    switch response.rawValue {
+//                    case 1000: let rulersvisible = true
+//                               NotificationCenter.default.post(name: Notification.Name(rawValue: "textView.enclosingScrollView?.rulersVisible"),
+//                                                                object: self.window,
+//                                                                userInfo: ["rulersvisible": rulersvisible])
+//                    case 1001: break
+//                    case 1002: print("1002")
+//                    default: break
+//                    }
+//                }
+//            }
+//        }
+        return row
     }
 }
